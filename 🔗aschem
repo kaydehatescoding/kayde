@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bondly: learn A-Level biology and chemistry</title>
+<meta name="description" content="Bondly: quick quiz lessons for Cambridge A-Level style chemistry and biology, with streaks and a leaderboard.">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Cpolygon points=%2750,6 88,28 88,72 50,94 12,72 12,28%27 fill=%27none%27 stroke=%27%232563eb%27 stroke-width=%2710%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap');
+
+:root{
+  --ink:#15213b; --ink2:#4d5a78; --paper:#f1f5f9; --card:#fff; --line:#d5dde8;
+  --chem:#5b3fd6; --chem-d:#3d27a6; --chem-l:#ece8fc;
+  --bio:#16945f; --bio-d:#0d6a43; --bio-l:#e0f4ea;
+
+  --ok:#1fa35b; --ok-d:#137a41; --ok-l:#dcf4e6;
+  --bad:#e0452b; --bad-d:#ae2b15; --bad-l:#fde4de;
+  --gold:#f5b82a; --gold-d:#c28a08;
+  --accent:var(--chem); --accent-d:var(--chem-d); --accent-l:var(--chem-l);
+}
+body.bio{ --accent:var(--bio); --accent-d:var(--bio-d); --accent-l:var(--bio-l); }
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{
+  font-family:'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color:var(--ink);font-size:16px;line-height:1.45;min-height:100vh;min-height:100dvh;
+  background-color:var(--paper);
+  background-image:linear-gradient(rgba(21,33,59,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(21,33,59,.05) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+h1,h2,h3,.disp{font-family:'Bricolage Grotesque','DM Sans',system-ui,sans-serif;letter-spacing:-.01em;margin:0;line-height:1.12}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#app{max-width:540px;margin:0 auto;min-height:100vh;min-height:100dvh;position:relative}
+.main{padding:14px 16px 110px}
+
+/* buttons */
+.btn{display:block;width:100%;border:0;border-radius:15px;padding:14px 18px;font-weight:800;font-size:16px;background:var(--accent);color:#fff;box-shadow:0 5px 0 var(--accent-d);text-align:center;transition:transform .06s,box-shadow .06s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--accent-d)}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn.ghost:active{box-shadow:0 0 0 var(--line)}
+.btn.ok{background:var(--ok);box-shadow:0 5px 0 var(--ok-d)}
+.btn.bad{background:var(--bad);box-shadow:0 5px 0 var(--bad-d)}
+.btn.small{display:inline-block;width:auto;padding:9px 14px;font-size:14px;border-radius:12px;box-shadow:0 3px 0 var(--accent-d)}
+.btn.small.ghost{box-shadow:0 3px 0 var(--line)}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+
+/* login */
+.login{padding:36px 22px 40px}
+.login .ring{width:92px;height:92px;display:block;margin:0 0 14px}
+.login h1{font-size:44px;font-weight:800}
+.login .tag{font-size:19px;color:var(--ink2);margin:8px 0 26px;max-width:22em}
+label.f{display:block;font-weight:700;font-size:14px;margin:14px 0 6px}
+label.f small{font-weight:400;color:var(--ink2)}
+input[type=text],input[type=email],textarea,select{width:100%;font:inherit;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:13px;padding:12px 14px}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:84px}
+.err{color:var(--bad-d);font-weight:700;font-size:14px;min-height:20px;margin:10px 0}
+.fine{font-size:13px;color:var(--ink2);margin-top:14px}
+
+/* top area */
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.seg{flex:1;display:flex;background:#fff;border:2px solid var(--line);border-radius:15px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;border-radius:11px;padding:9px 6px;font-weight:700;color:var(--ink2)}
+.seg button.on{background:var(--accent);color:#fff}
+.chip.total{background:var(--gold);color:#4a3300;font-weight:800;border-radius:999px;padding:8px 13px;white-space:nowrap}
+.semtabs{display:flex;gap:8px;margin-bottom:12px}
+.semtabs button{flex:1;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 4px;font-weight:700;font-size:14px;color:var(--ink2)}
+.semtabs button.on{border-color:var(--accent);color:var(--accent-d);background:var(--accent-l)}
+.sembanner{background:var(--accent);color:#fff;border-radius:18px;padding:16px 18px;box-shadow:0 5px 0 var(--accent-d)}
+.sembanner h2{font-size:24px}
+.sembanner .n{font-size:14px;opacity:.85;margin-bottom:2px}
+.sembanner p.b{font-size:15px;margin-top:6px;opacity:.95}
+
+/* path */
+.path{padding:6px 0 4px}
+.step{display:flex;flex-direction:column;align-items:center;margin:20px 0 4px;transform:translateX(var(--dx,0))}
+.hex{position:relative;width:84px;height:102px;border:0;background:none;padding:0}
+.hex .hb,.hex .hf{position:absolute;left:0;width:84px;height:96px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.hex .hb{top:6px;background:var(--accent-d)}
+.hex .hf{top:0;background:var(--accent);display:grid;place-items:center;font-size:32px;transition:transform .07s}
+.hex:active .hf{transform:translateY(5px)}
+.hex.locked .hb{background:#b3bfce}
+.hex.locked .hf{background:#d5dce7;font-size:26px}
+.hex.done .hb{background:var(--gold-d)}
+.hex.done .hf{background:var(--gold)}
+.hex.current .hf{animation:pulse 1.9s ease-in-out infinite}
+@keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18)}}
+.sl{font-weight:700;font-size:14px;margin-top:6px;text-align:center;max-width:150px}
+.stars{color:var(--gold-d);letter-spacing:2px;font-size:15px}
+.mmhead{margin:34px 0 4px;background:var(--ink);color:#fff;border-radius:18px;padding:16px 18px}
+.mmhead h3{font-size:21px;margin-bottom:6px}
+.mmhead p{font-size:14px;opacity:.88}
+
+/* tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;background:#fff;border-top:2px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabs .in{display:flex;width:100%;max-width:540px}
+.tabs button{flex:1;border:0;background:none;padding:9px 2px 8px;color:var(--ink2);font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabs button span{font-size:22px;line-height:1.1}
+.tabs button.on{color:var(--accent-d)}
+
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(21,33,59,.5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:540px;background:#fff;border-radius:24px 24px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom));animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet .ic{font-size:40px}
+.sheet h3{font-size:24px;margin:4px 0 2px}
+.sheet .sub{color:var(--ink2);font-size:14px;margin-bottom:12px}
+.stats{display:flex;gap:10px;margin:12px 0 18px}
+.stat{flex:1;border:2px solid var(--line);border-radius:14px;padding:9px 10px}
+.stat b{display:block;font-family:'Bricolage Grotesque',sans-serif;font-size:22px}
+.stat span{font-size:12px;color:var(--ink2)}
+
+/* lesson */
+.play{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;padding:14px 16px 190px}
+.ptop{display:flex;align-items:center;gap:12px}
+.x{border:0;background:none;font-size:22px;color:var(--ink2);padding:4px 6px}
+.spectrum{flex:1;height:14px;border-radius:99px;overflow:hidden;position:relative;background:linear-gradient(90deg,#e0452b,#f0892a,#f5cf3a,#3fb950,#2f8ae0,#6a45d8)}
+.spectrum .cover{position:absolute;right:0;top:0;bottom:0;background:#dfe6ef;transition:width .35s ease}
+.live{display:flex;gap:10px;font-weight:800;font-size:14px;white-space:nowrap}
+.tbar{height:6px;background:#dfe6ef;border-radius:99px;overflow:hidden;margin:16px 0 22px}
+.tbar i{display:block;height:100%;width:100%;background:var(--accent);animation:drain linear forwards}
+@keyframes drain{from{width:100%}to{width:0}}
+.qtag{font-size:13px;font-weight:700;color:var(--accent-d);margin-bottom:6px}
+.qtext{font-size:23px;font-weight:800;font-family:'Bricolage Grotesque','DM Sans',sans-serif;line-height:1.22;margin-bottom:22px}
+.q-figure{display:block;max-width:100%;max-height:260px;object-fit:contain;margin:0 auto 18px;border-radius:12px;background:#fff;border:2px solid var(--line)}
+.opts{display:flex;flex-direction:column;gap:11px}
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-bottom-width:5px;border-radius:16px;padding:13px 14px;font-weight:500;color:var(--ink)}
+.opt .k{flex:none;width:30px;height:30px;border-radius:9px;border:2px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:14px;color:var(--ink2)}
+.opt:hover{border-color:var(--accent)}
+.opt.ok{background:var(--ok-l);border-color:var(--ok);color:var(--ok-d)}
+.opt.ok .k{border-color:var(--ok);background:var(--ok);color:#fff}
+.opt.bad{background:var(--bad-l);border-color:var(--bad);color:var(--bad-d)}
+.opt.bad .k{border-color:var(--bad);background:var(--bad);color:#fff}
+.opt.dim{opacity:.5}
+.fb{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:540px;z-index:30;padding:16px 18px calc(18px + env(safe-area-inset-bottom));animation:up .2s ease-out}
+.fb.ok{background:var(--ok-l);border-top:3px solid var(--ok)}
+.fb.bad{background:var(--bad-l);border-top:3px solid var(--bad)}
+.fb h3{font-size:21px;margin-bottom:4px}
+.fb.ok h3{color:var(--ok-d)} .fb.bad h3{color:var(--bad-d)}
+.fb .calc{font-weight:700;font-size:14px;margin-bottom:4px}
+.fb .exp{font-size:14px;color:var(--ink2);margin-bottom:12px}
+
+/* results */
+.result{padding:40px 22px;text-align:center}
+.result .st{font-size:40px;color:var(--gold-d);letter-spacing:6px}
+.result h2{font-size:32px;margin:8px 0 4px}
+.result .big{font-family:'Bricolage Grotesque',sans-serif;font-size:72px;font-weight:800;color:var(--accent);line-height:1;margin:14px 0 2px}
+.result .lab{color:var(--ink2);font-size:14px}
+.result .stats{margin:22px 0}
+.badge{display:inline-block;background:var(--gold);color:#4a3300;font-weight:800;font-size:13px;border-radius:99px;padding:4px 12px;margin-top:6px}
+
+/* boards, lists */
+h2.pg{font-size:28px;margin:4px 0 4px}
+.sub{color:var(--ink2);font-size:14px}
+.pills{display:flex;gap:8px;margin:14px 0}
+.pills button{border:2px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-weight:700;font-size:14px;color:var(--ink2)}
+.pills button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.lb{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lb li{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 14px}
+.lb li.me{border-color:var(--accent);background:var(--accent-l)}
+.lb .rk{width:30px;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px;text-align:center}
+.lb .nm{flex:1;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb .sc{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:18px}
+.empty{background:#fff;border:2px dashed var(--line);border-radius:16px;padding:22px;text-align:center;color:var(--ink2)}
+.card{background:#fff;border:2px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.card h3{font-size:18px;margin-bottom:6px}
+.optrow{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.optrow input[type=radio]{width:22px;height:22px;accent-color:var(--ok);flex:none}
+.q-item .qq{font-weight:700;margin:4px 0}
+.q-item ul{margin:4px 0 0;padding-left:20px;font-size:14px;color:var(--ink2)}
+.q-item li.c{color:var(--ok-d);font-weight:700}
+.q-item .meta{font-size:12px;color:var(--ink2)}
+pre.code{background:var(--ink);color:#e8eefc;border-radius:12px;padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap}
+details{margin:10px 0}
+summary{cursor:pointer;font-weight:700;font-size:14px}
+.errlist{font-size:13px;color:var(--bad-d);margin:8px 0;padding-left:18px}
+
+/* profile */
+.who{display:flex;align-items:center;gap:14px;margin:6px 0 16px}
+.av{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:28px;box-shadow:0 4px 0 var(--accent-d)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.av{overflow:hidden;flex:none}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av.sm{width:34px;height:34px;font-size:15px;box-shadow:none}
+.avbtn{position:relative;border:0;background:none;padding:0;border-radius:50%;cursor:pointer;flex:none}
+.avbtn .av{width:76px;height:76px}
+.avbtn .cam{position:absolute;right:-4px;bottom:-4px;width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--line);display:grid;place-items:center;font-size:14px}
+.avrow{display:flex;gap:8px;margin:-6px 0 16px}
+.avrow .btn{padding:8px 14px;font-size:14px;width:auto}
+
+/* mind map */
+.mm{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.mmtop{padding:14px 16px 6px}
+.mmtitle{margin:14px 0 4px;font-size:24px}
+.mmhelp{font-size:13px;color:var(--ink2)}
+.mmstrip{min-height:28px;margin:8px 0 0;font-weight:700;font-size:14px}
+.mmstrip.ok{color:var(--ok-d)} .mmstrip.bad{color:var(--bad-d)}
+.mmrows{flex:1;padding:6px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.mmrow{display:grid;grid-template-columns:1fr 24px 1fr;gap:6px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:16px;padding:10px 10px 8px}
+.mmrow.ok{border-color:var(--ok);background:#f6fcf8}
+.mmrow.flash{animation:flash .5s}
+@keyframes flash{0%,100%{border-color:var(--line)}30%{border-color:var(--bad);background:var(--bad-l)}}
+.arr{color:var(--ink2);font-size:14px;text-align:center}
+.mn{min-height:58px;border-radius:12px;border:2px solid var(--line);padding:6px 8px;display:flex;flex-direction:column;justify-content:center;background:#fafcfe;min-width:0}
+.mn b{font-size:13px;line-height:1.2;overflow-wrap:anywhere}
+.mn code{font-family:inherit;font-size:11px;color:var(--ink2);margin-top:2px;overflow-wrap:anywhere}
+.mn.hub{border-color:var(--gold-d);background:#fff8e3}
+.mn.filled{border-color:var(--ok);background:var(--ok-l)}
+.mn.blank{border-style:dashed;border-color:var(--ink2);background:#fff;align-items:center;font-size:24px;font-weight:800;color:var(--ink2);line-height:1}
+.mn.blank small{font-size:11px;font-weight:500;margin-top:2px}
+.mn.blank.sel{border-color:var(--accent);background:var(--accent-l);color:var(--accent-d);border-style:solid}
+.mr{grid-column:1/-1;justify-self:center;margin-top:2px;max-width:100%}
+.pill{display:inline-block;max-width:100%;background:var(--accent-l);color:var(--accent-d);border-radius:99px;padding:5px 12px;font-size:13px;font-weight:700;border:2px solid transparent;text-align:center;overflow-wrap:anywhere}
+.pill.filled{background:var(--ok-l);color:var(--ok-d)}
+.pill.blank{background:#fff;border:2px dashed var(--ink2);color:var(--ink2)}
+.pill.blank.sel{border:2px solid var(--accent);background:var(--accent-l);color:var(--accent-d)}
+.chipbar{position:sticky;bottom:0;background:#fff;border-top:3px solid var(--line);padding:12px 14px calc(14px + env(safe-area-inset-bottom));max-height:42vh;overflow:auto}
+.chipbar .t{font-size:12px;color:var(--ink2);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);border-bottom-width:4px;background:#fff;border-radius:12px;padding:7px 11px;font-weight:700;font-size:13px;text-align:left;color:var(--ink)}
+.chip.reagent{border-radius:99px;background:var(--accent-l);border-color:var(--accent-l);border-bottom-color:var(--accent);color:var(--accent-d)}
+.chip.shake{animation:shake .4s;border-color:var(--bad)}
+@keyframes shake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* toasts / confirm */
+#toasts{position:fixed;top:14px;left:0;right:0;z-index:100;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.toast{background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px;max-width:90vw;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+.toast.bad{background:var(--bad-d)} .toast.ok{background:var(--ok-d)}
+.confirm{position:fixed;inset:0;background:rgba(21,33,59,.55);z-index:60;display:grid;place-items:center;padding:20px}
+.confirm .box{background:#fff;border-radius:20px;padding:22px;max-width:380px;width:100%}
+.confirm h3{font-size:22px;margin-bottom:6px}
+.confirm p{color:var(--ink2);margin-bottom:16px}
+.loading{display:grid;place-items:center;min-height:60vh;color:var(--ink2);font-weight:700}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   BONDLY: Cambridge A-Level Biology (9700) & Chemistry (9701)
+   ===================================================================== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+/* ---------------------------------------------------------------------
+   1. STORAGE
+   --------------------------------------------------------------------- */
+const CONFIG = {
+  SUPABASE_URL: 'https://fiwboufecjfpxuvukwmp.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpd2JvdWZlY2pmcHh1dnVrd21wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzMDg1MTUsImV4cCI6MjEwNjg4NDUxNX0.yKWKxuaLSuhjCaNrMdvfmJp_FjqO6b9Mo95xOT7lGco'
+};
+const ONLINE = !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY);
+const enc = encodeURIComponent;
+
+async function sb(path, opt = {}) {
+  const h = { apikey: CONFIG.SUPABASE_ANON_KEY, 'Content-Type': 'application/json', ...(opt.headers || {}) };
+  if (!opt.noAuth && Auth.s && Auth.s.access_token) h.Authorization = 'Bearer ' + Auth.s.access_token;
+  const r = await fetch(CONFIG.SUPABASE_URL.replace(/\/$/, '') + path, { method: opt.method || 'GET', headers: h, body: opt.body !== undefined ? JSON.stringify(opt.body) : undefined });
+  const text = await r.text(); let data = null; try { data = text ? JSON.parse(text) : null; } catch (e) {}
+  if (!r.ok) {
+    const e = new Error((data && (data.msg || data.message || data.error_description || data.error)) || ('HTTP ' + r.status));
+    e.status = r.status; throw e;
+  }
+  return data;
+}
+
+async function uploadFigure(file) {
+  if (DB.mode !== 'online') throw new Error('Figures need online mode.');
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) throw new Error('PNG, JPG or WebP only');
+  if (file.size > 1024 * 1024) throw new Error('Max 1 MB');
+  if (!(await Auth.fresh())) throw new Error('Please sign in again.');
+  const ext = file.type.split('/')[1].replace('jpeg', 'jpg');
+  const path = `${Auth.s.user.id}/${crypto.randomUUID()}.${ext}`;
+  const r = await fetch(`${CONFIG.SUPABASE_URL.replace(/\/$/, '')}/storage/v1/object/question-figures/${path}`, {
+    method: 'POST',
+    headers: { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + Auth.s.access_token, 'Content-Type': file.type },
+    body: file
+  });
+  if (!r.ok) throw new Error('Upload failed (HTTP ' + r.status + ')');
+  return path;
+}
+
+const figSrc = p => {
+  if (typeof p !== 'string') return '';
+  if (/^[A-Za-z0-9_-]+\.(svg|png|jpg|jpeg|webp)$/.test(p)) return 'img/' + p;
+  return /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(png|jpg|webp)$/.test(p)
+    ? CONFIG.SUPABASE_URL.replace(/\/$/, '') + '/storage/v1/object/public/question-figures/' + p : '';
+};
+
+const Auth = {
+  s: null,
+  load() { try { this.s = JSON.parse(localStorage.getItem('bondly:auth') || 'null'); } catch (e) { this.s = null; } },
+  save(s) { this.s = s; try { s ? localStorage.setItem('bondly:auth', JSON.stringify(s)) : localStorage.removeItem('bondly:auth'); } catch (e) {} },
+  pack(d) { return { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at || (Math.floor(Date.now() / 1000) + (d.expires_in || 3600)), user: { id: d.user.id, email: d.user.email } }; },
+  async sendCode(email) { await sb('/auth/v1/otp', { method: 'POST', noAuth: true, body: { email, create_user: true } }); },
+  async verify(email, token) { const d = await sb('/auth/v1/verify', { method: 'POST', noAuth: true, body: { type: 'email', email, token } }); this.save(this.pack(d)); return this.s; },
+  async fresh() {
+    if (!this.s) return false;
+    if (this.s.expires_at - 60 > Date.now() / 1000) return true;
+    try { const d = await sb('/auth/v1/token?grant_type=refresh_token', { method: 'POST', noAuth: true, body: { refresh_token: this.s.refresh_token } }); this.save(this.pack(d)); return true; }
+    catch (e) { if (e.status >= 400 && e.status < 500) this.save(null); throw e; }
+  },
+  async signOut() { try { await sb('/auth/v1/logout', { method: 'POST' }); } catch (e) {} this.save(null); }
+};
+
+const DB = {
+  mode: 'memory', mem: new Map(),
+  init() {
+    if (ONLINE) { this.mode = 'online'; Auth.load(); return; }
+    if (window.storage && typeof window.storage.get === 'function') { this.mode = 'cloud'; return; }
+    try { localStorage.setItem('__bondly', '1'); localStorage.removeItem('__bondly'); this.mode = 'local'; }
+    catch (e) { this.mode = 'memory'; }
+  },
+  lk(key, shared) { return 'bondly:' + (shared ? 's:' : 'p:') + key; },
+  ok(key, shared) { return shared ? `scope=eq.s&key=eq.${enc(key)}` : `scope=eq.p&key=eq.${enc(key)}&owner=eq.${Auth.s.user.id}`; },
+  async get(key, shared = false) {
+    if (this.mode === 'online') {
+      if (!(await Auth.fresh())) throw new Error('Not signed in');
+      const rows = await sb(`/rest/v1/kv?${this.ok(key, shared)}&select=value&limit=1`);
+      return rows && rows[0] ? rows[0].value : null;
+    }
+    try {
+      if (this.mode === 'cloud') { const r = await window.storage.get(key, shared); return r && r.value != null ? JSON.parse(r.value) : null; }
+      const raw = this.mode === 'local' ? localStorage.getItem(this.lk(key, shared)) : this.mem.get(this.lk(key, shared));
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  },
+  async set(key, val, shared = false) {
+    if (this.mode === 'online') {
+      try {
+        if (!(await Auth.fresh())) return false;
+        await sb('/rest/v1/kv?on_conflict=owner,scope,key', { method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+          body: { owner: Auth.s.user.id, scope: shared ? 's' : 'p', key, value: val, updated_at: new Date().toISOString() } });
+        return true;
+      } catch (e) { return false; }
+    }
+    try {
+      const raw = JSON.stringify(val);
+      if (this.mode === 'cloud') { const r = await window.storage.set(key, raw, shared); return !!r; }
+      if (this.mode === 'local') localStorage.setItem(this.lk(key, shared), raw); else this.mem.set(this.lk(key, shared), raw);
+      return true;
+    } catch (e) { return false; }
+  },
+  async del(key, shared = false) {
+    if (this.mode === 'online') {
+      try { if (!(await Auth.fresh())) return false; await sb(`/rest/v1/kv?${this.ok(key, shared)}`, { method: 'DELETE' }); return true; } catch (e) { return false; }
+    }
+    try {
+      if (this.mode === 'cloud') { await window.storage.delete(key, shared); return true; }
+      if (this.mode === 'local') localStorage.removeItem(this.lk(key, shared)); else this.mem.delete(this.lk(key, shared));
+      return true;
+    } catch (e) { return false; }
+  },
+  async list(prefix, shared = false) {
+    if (this.mode === 'online') {
+      if (!(await Auth.fresh())) return [];
+      const rows = await sb(`/rest/v1/kv?scope=eq.${shared ? 's' : 'p'}&key=like.${enc(prefix)}*&select=key&limit=1000`);
+      return (rows || []).map(r => r.key);
+    }
+    try {
+      if (this.mode === 'cloud') { const r = await window.storage.list(prefix, shared); return (r && r.keys) || []; }
+      const p = this.lk(prefix, shared), base = this.lk('', shared);
+      const all = this.mode === 'local' ? Object.keys(localStorage) : [...this.mem.keys()];
+      return all.filter(k => k.startsWith(p)).map(k => k.slice(base.length));
+    } catch (e) { return []; }
+  },
+  async listValues(prefix, shared = false, o = {}) {
+    const limit = o.limit || 300;
+    if (this.mode === 'online') {
+      if (!(await Auth.fresh())) return [];
+      const rows = await sb(`/rest/v1/kv?scope=eq.${shared ? 's' : 'p'}&key=like.${enc(prefix)}*&select=value&limit=${limit}${o.order ? '&order=' + o.order : ''}`);
+      return (rows || []).map(r => r.value);
+    }
+    const keys = (await this.list(prefix, shared)).slice(0, limit);
+    return (await Promise.all(keys.map(k => this.get(k, shared)))).filter(v => v != null);
+  }
+};
+
+async function hashId(str) {
+  try {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('bondly:' + str));
+    return [...new Uint8Array(buf)].slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) { let h = 5381; for (const c of str) h = ((h << 5) + h + c.charCodeAt(0)) >>> 0; return 'x' + h.toString(16); }
+}
+const idOf = email => email.trim().toLowerCase().replace(/[^a-z0-9@._-]/g, '_');
+
+const AV_OK = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
+const avSrc = a => (typeof a === 'string' && a.length < 24000 && AV_OK.test(a)) ? a : '';
+const avHTML = (a, name, cls) => { const s = avSrc(a); return `<div class="av ${cls || ''}">${s ? `<img src="${s}" alt="">` : esc(String(name || '?').charAt(0).toUpperCase())}</div>`; };
+function viaImg(file) { return new Promise((res, rej) => { const u = URL.createObjectURL(file), im = new Image(); im.onload = () => { URL.revokeObjectURL(u); res(im); }; im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('bad image')); }; im.src = u; }); }
+function loadBitmap(file) { return window.createImageBitmap ? createImageBitmap(file, { imageOrientation: 'from-image' }).catch(() => viaImg(file)) : viaImg(file); }
+function squareJpeg(src, size, q) {
+  const w = src.width, h = src.height, m = Math.min(w, h), c = document.createElement('canvas'); c.width = c.height = size;
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, size, size);
+  x.drawImage(src, (w - m) / 2, (h - m) / 2, m, m, 0, 0, size, size);
+  return c.toDataURL('image/jpeg', q);
+}
+async function setAvatar(file) {
+  if (!file) return;
+  if (!/^image\//.test(file.type)) return toast('Please choose an image file.', 'bad');
+  if (file.size > 15 * 1024 * 1024) return toast('That image is too large. Choose one under 15 MB.', 'bad');
+  try {
+    const bmp = await loadBitmap(file);
+    S.user.avatar = squareJpeg(bmp, 160, 0.82); S.user.thumb = squareJpeg(bmp, 40, 0.7);
+  } catch (e) { return toast('Could not read that image. Try a JPG or PNG.', 'bad'); }
+  render(); await saveUser(); await pushScore(); toast('Profile picture updated.', 'ok');
+}
+async function clearAvatar() { S.user.avatar = ''; S.user.thumb = ''; render(); await saveUser(); await pushScore(); toast('Profile picture removed.', 'ok'); }
+
+function friendly(e) {
+  const m = String((e && e.message) || '').toLowerCase();
+  if (e instanceof TypeError || /failed to fetch|network|load failed/.test(m)) return 'Could not reach the server. Check your connection.';
+  if (/expired|invalid|otp|token/.test(m)) return 'That code is wrong or has expired. Request a new one.';
+  return 'Sign-in failed: ' + ((e && e.message) || 'unknown error');
+}
+
+/* ---------------------------------------------------------------------
+   2. CONTENT (CAMBRIDGE INTERNATIONAL AS & A-LEVEL SYLLABUS: 9700 & 9701)
+   --------------------------------------------------------------------- */
+const CUR = {
+  chem: { name: 'Chemistry (9701)', sems: [
+    { title: "AS Physical & Inorganic", blurb: "Atoms, stoichiometry, bonding, states of matter, enthalpy, periodicity, and Group 2 & 17.", units: [["c01","Atomic structure & stoichiometry","⚖️"],["c02","Chemical bonding & structure","🔗"],["c03","States of matter & gases","🎈"],["c04","Chemical energetics & kinetics","🔥"],["c05","Equilibria & redox","⇄"],["c06","Periodicity & Group 2 & 17","🧂"]] },
+    { title: "AS Organic Chemistry", blurb: "Hydrocarbons, halogenoalkanes, alcohols, carbonyls, and the organic mind map.", units: [["c07","Intro to organic & alkanes","⛓️"],["c08","Alkenes & addition","🧬"],["c09","Halogenoalkanes","🧫"],["c10","Alcohols & hydroxy","🍷"],["c11","Carbonyls & carboxylics","🍋"]] },
+    { title: "A2 Physical, Inorganic & Synthesis", blurb: "Thermodynamics, electrochemistry, transition elements, arena, nitrogen compounds & polymers.", units: [["c12","Thermodynamics & Ksp","🔋"],["c13","Electrochemistry & kinetics","⏱️"],["c14","Transition elements & complexes","🎨"],["c15","Arenes & phenol","⬡"],["c16","Carboxylic derivatives & nitrogen","💧"],["c17","Polymers & organic synthesis","🧶"]] }
+  ]},
+  bio: { name: 'Biology (9700)', sems: [
+    { title: 'AS Core Biology', blurb: 'Cell structure, biomolecules, enzymes, cell membranes, and the cell cycle.', units: [['b01','Cell structure & microscopy','🔬'],['b02','Biological molecules','🧬'],['b03','Enzymes & kinetics','🧪'],['b04','Cell membranes & transport','🧫'],['b05','Mitosis & the cell cycle','🦠']] },
+    { title: 'AS Physiology & Immunity', blurb: 'Nucleic acids, protein synthesis, transport systems, and immunity.', units: [['b06','Nucleic acids & protein synthesis','🧱'],['b07','Transport in plants','🌱'],['b08','Transport in mammals','❤️'],['b09','Gas exchange & smoking','🫁'],['b10','Infectious diseases & immunity','🛡️']] },
+    { title: 'A2 Advanced Biology', blurb: 'Respiration, photosynthesis, homeostasis, genetics, evolution, and gene tech.', units: [['b11','Respiration & photosynthesis','⚡'],['b12','Homeostasis & coordination','🧠'],['b13','Inheritance & gene selection','🧬'],['b14','Ecology & biodiversity','🦌'],['b15','Genetic technology','🧪']] }
+  ]}
+};
+
+const QUESTIONS = {
+c01:[
+["Which definition correctly describes the relative atomic mass (Ar)?", "Weighted average mass of naturally occurring atoms compared to 1/12th the mass of a C-12 atom", "Mass of one mole of an element compared to 1g of hydrogen", "Total number of protons and neutrons in an atom", "Mass of an atom relative to an H-1 atom", "Ar is defined strictly relative to 1/12th of a carbon-12 atom."],
+["How many sub-shell orbitals exist in the n=3 principal quantum level?", "9", "3", "7", "18", "n=3 has 3s (1 orbital), 3p (3 orbitals), and 3d (5 orbitals), giving 1+3+5 = 9 orbitals."],
+["What is the ground-state electronic configuration of a copper atom (Z=29)?", "[Ar] 3d¹⁰ 4s¹", "[Ar] 3d⁹ 4s²", "[Ar] 3d⁸ 4s² 4p¹", "[Ar] 3d¹⁰ 4s²", "Copper promotes a 4s electron to achieve a fully stable 3d¹⁰ subshell."],
+["Why is the first ionisation energy of oxygen lower than that of nitrogen?", "Spin-pair repulsion occurs in the occupied 2p orbital of oxygen", "Oxygen has a lower nuclear charge", "Nitrogen's 2p electron is closer to the nucleus", "Oxygen has greater inner shell shielding", "In oxygen, one 2p orbital contains two paired electrons whose mutual repulsion makes removal easier."]],
+c02:[
+["What is the shape and bond angle of a sulfur hexafluoride (SF₆) molecule?", "Octahedral, 90°", "Trigonal bipyramidal, 90° and 120°", "Tetrahedral, 109.5°", "Square planar, 90°", "SF₆ has 6 bonding pairs and 0 lone pairs around S, giving an octahedral shape."],
+["Which molecule contains both covalent and dative (coordinate) bonds?", "NH₄Cl", "CH₄", "H₂O", "CCl₄", "NH₄⁺ contains a dative bond where nitrogen donates a lone pair to H⁺."],
+["Why does ammonia (NH₃) have a smaller bond angle (107°) than methane (109.5°)?", "Lone pair-bond pair repulsion is greater than bond pair-bond pair repulsion", "Nitrogen is less electronegative than carbon", "The N-H bond is longer than the C-H bond", "Ammonia exhibits hydrogen bonding", "Lone pairs exert a stronger repulsive force, squeezing the bonding pairs closer together."]],
+c03:[
+["Under which set of conditions does a real gas show the greatest deviation from ideal behavior?", "High pressure and low temperature", "Low pressure and high temperature", "High pressure and high temperature", "Low pressure and low temperature", "At high pressure and low temperature, intermolecular forces and molecular volume become significant."],
+["What is the volume occupied by 0.25 mol of an ideal gas at 300 K and 100 kPa? (R = 8.31 J K⁻¹ mol⁻¹)", "6.23 dm³", "0.62 dm³", "62.3 dm³", "12.4 dm³", "V = nRT/P = (0.25 × 8.31 × 300) / 100,000 = 0.00623 m³ = 6.23 dm³."]],
+c04:[
+["In a Born-Haber cycle for NaCl, which step is endothermic?", "Standard enthalpy of atomisation of sodium", "Lattice energy of sodium chloride", "First electron affinity of chlorine", "Standard enthalpy of formation of NaCl", "Atomisation breaks metallic bonds to form gaseous Na atoms, requiring energy."],
+["What are the units of the rate constant k for a second-order reaction?", "dm³ mol⁻¹ s⁻¹", "mol dm⁻³ s⁻¹", "s⁻¹", "dm⁶ mol⁻² s⁻¹", "Rate (mol dm⁻³ s⁻¹) = k [A]² (mol² dm⁻⁶) → k units = dm³ mol⁻¹ s⁻¹."]],
+c05:[
+["How does increasing total pressure affect the equilibrium position of N₂O₄(g) ⇌ 2NO₂(g)?", "Shifts to the left (favours N₂O₄)", "Shifts to the right (favours NO₂)", "No change in equilibrium position", "Increases the value of Kp", "Increased pressure shifts equilibrium to the side with fewer gas moles (1 mole of N₂O₄ vs 2 moles of NO₂)."]],
+c06:[
+["Why does thermal stability of Group 2 nitrates increase down the group?", "Larger cations have lower charge density and polarise the nitrate ion less", "The ionic bond becomes purely covalent", "The N-O bond gets stronger down the group", "Group 2 metals become less reactive", "Cations with lower charge density cause less distortion/polarisation of the complex nitrate anion."],
+["What is observed when aqueous silver nitrate followed by concentrated ammonia is added to potassium iodide solution?", "Yellow precipitate insoluble in concentrated ammonia", "White precipitate soluble in dilute ammonia", "Cream precipitate soluble only in concentrated ammonia", "No precipitate forms", "AgI is yellow and remains insoluble even in concentrated NH₃."]],
+c07:[
+["What mechanism takes place during the chlorination of methane under UV light?", "Free-radical substitution", "Electrophilic addition", "Nucleophilic substitution", "Electrophilic substitution", "UV light causes homolytic fission of Cl₂ to generate chlorine free radicals."]],
+c08:[
+["What is the major product formed when HBr reacts with propene?", "2-bromopropane", "1-bromopropane", "1,2-dibromopropane", "Cyclopropane", "According to Markovnikov's rule, the electrophilic H⁺ adds to form the more stable secondary carbocation."]],
+c09:[
+["Which halogenoalkane undergoes hydrolysis via the S_N1 mechanism at the fastest rate?", "2-iodo-2-methylpropane", "1-chlorobutane", "2-chloro-2-methylpropane", "1-iodobutane", "Tertiary halogenoalkanes react via S_N1, and C-I has the weakest bond enthalpy."],
+["Which reagent and conditions convert bromoethane into ethene?", "Ethanolic KOH, heat", "Aqueous NaOH, heat", "Concentrated H₂SO₄, 170°C", "Reflux with KCN in ethanol", "Ethanolic hydroxide acts as a base to eliminate HBr from the halogenoalkane."]],
+c10:[
+["What reagent and conditions are required to oxidise a primary alcohol directly to an aldehyde?", "Acidified K₂Cr₂O₇ with immediate distillation", "Acidified KMnO₄ under reflux", "Concentrated H₂SO₄ at 170°C", "NaBH₄ in methanol", "Distilling the product as it forms prevents further oxidation to a carboxylic acid."]],
+c11:[
+["Which organic compound produces a yellow precipitate when warmed with alkaline aqueous iodine?", "Propanone", "Propanal", "Pentane-3-one", "Ethanoic acid", "Compounds containing the CH₃C=O or CH₃CH(OH) group give a positive tri-iodomethane (iodoform) test."]],
+c12:[
+["What is the relationship between ΔG°, ΔH°, ΔS°, and absolute temperature T?", "ΔG° = ΔH° - TΔS°", "ΔG° = ΔH° + TΔS°", "ΔG° = TΔS° - ΔH°", "ΔG° = ΔH° / (TΔS°)", "A reaction is thermodynamically feasible when ΔG° is negative."]],
+c13:[
+["What product is liberated at the anode during the electrolysis of concentrated aqueous NaCl using inert electrodes?", "Chlorine gas", "Oxygen gas", "Hydrogen gas", "Sodium metal", "Cl⁻ ions are present in high concentration and are discharged in preference to OH⁻ ions."]],
+c14:[
+["Why is zinc not classified as a transition element in the Cambridge syllabus?", "Zinc does not form any stable ions with an incomplete d-subshell", "Zinc is a non-metal", "Zinc has low melting point", "Zinc only forms covalent complexes", "Zn²⁺ has a full 3d¹⁰ electronic configuration."],
+["What shape is assumed by the complex ion [Cu(Cl)₄]²⁻?", "Tetrahedral", "Square planar", "Octahedral", "Linear", "[CuCl₄]²⁻ forms a tetrahedral complex with yellow-green color."]],
+c15:[
+["What is the active electrophile generated in the nitration mixture of concentrated HNO₃ and concentrated H₂SO₄?", "NO₂⁺ (nitronium ion)", "NO⁺", "HNO₂", "NO₃⁻", "H₂SO₄ protonates HNO₃ to generate the nitronium ion NO₂⁺."],
+["Why is phenol significantly more acidic than ethanol?", "The phenoxide ion is stabilized by delocalisation of negative charge into the benzene π-system", "Phenol contains more hydrogen atoms", "The O-H bond in phenol is ionic", "Ethanol forms stronger hydrogen bonds with water", "Delocalisation reduces the charge density on oxygen, making phenoxide less likely to re-combine with H⁺."]],
+c16:[
+["Which derivative reacts most rapidly with water at room temperature?", "Ethanoyl chloride", "Ethyl ethanoate", "Ethanamide", "Ethanoic anhydride", "Acyl chlorides are highly electron-deficient at the carbonyl carbon and possess a superior leaving group (Cl⁻)."]],
+c17:[
+["What type of polymerisation produces Nylon 6,6?", "Condensation polymerisation", "Addition polymerisation", "Free-radical polymerisation", "Anionic polymerisation", "Condensation between a dicarboxylic acid and a diamine eliminates small H₂O molecules."]],
+
+b01:[
+["What is the resolution of a standard light microscope compared to a transmission electron microscope (TEM)?", "Light: 200 nm; TEM: 0.5 nm", "Light: 20 nm; TEM: 200 nm", "Light: 0.5 nm; TEM: 200 nm", "Light: 2 µm; TEM: 2 nm", "Visible light wavelength limits light microscopy to ~200 nm resolution; electron beams achieve ~0.5 nm."],
+["Which organelle contains circular DNA and 70S ribosomes?", "Mitochondrion", "Golgi body", "Lysosome", "Rough Endoplasmic Reticulum", "Mitochondria and chloroplasts contain prokaryotic-like circular DNA and 70S ribosomes."]],
+b02:[
+["Which bond links two α-glucose monomers together in amylose?", "α-1,4-glycosidic bond", "β-1,4-glycosidic bond", "α-1,6-glycosidic bond", "Peptide bond", "Amylose is an unbranched polymer of α-glucose linked by α-1,4-glycosidic bonds."],
+["How does collagen structure differ from haemoglobin?", "Collagen is a fibrous protein composed of a triple helix; haemoglobin is a globular quaternary protein", "Collagen contains prosthetic haem groups", "Haemoglobin consists of insoluble beta sheets", "Collagen contains disulphide bridges between four subunit chains", "Collagen forms structural fibrils via a triple helix of polypeptide chains."]],
+b03:[
+["How does a competitive inhibitor affect the Vmax and Km of an enzyme-catalysed reaction?", "Vmax remains unchanged; Km increases", "Vmax decreases; Km remains unchanged", "Both Vmax and Km decrease", "Vmax decreases; Km increases", "Increasing substrate concentration overcomes competitive inhibition, reaching original Vmax, but higher Km reflects reduced affinity."]],
+b04:[
+["What happens to a plant cell placed in a solution with a more negative water potential than its cell sap?", "Water leaves the cell by osmosis and the cell becomes plasmolysed", "Water enters the cell and it becomes turgid", "The cell bursts due to lysis", "Solutes enter by active transport until water potentials balance", "Protoplast pulls away from the cell wall as water exits down the water potential gradient."]],
+b05:[
+["In which phase of mitosis do sister chromatids separate and move to opposite poles?", "Anaphase", "Metaphase", "Prophase", "Telophase", "Centromeres split and spindle fibres shorten to pull chromatids apart in Anaphase."]],
+b06:[
+["Which enzyme synthesises the complementary mRNA strand during transcription?", "RNA polymerase", "DNA polymerase", "DNA ligase", "Helicase", "RNA polymerase unwinds DNA and links RNA nucleotides in a 5' to 3' direction."]],
+b07:[
+["How is water transported through the apoplast pathway in plant roots blocked at the endodermis?", "By the suberin strip known as the Casparian strip", "By active transport pumps in xylem vessels", "By plasmodesmata channels", "By stomatal guard cells", "The Casparian strip forces water from the apoplast into the symplast pathway."]],
+b08:[
+["What causes the Bohr shift in the oxygen dissociation curve of haemoglobin?", "Increased partial pressure of CO₂ lowers pH, reducing haemoglobin's affinity for oxygen", "Decreased temperature increases oxygen release", "Increased oxygen concentration shifts the curve to the left", "Binding of carbon monoxide to haemoglobin", "Higher CO₂ forms carbonic acid; H⁺ ions bind haemoglobin and promote O₂ release in oxygen-demanding tissues."]],
+b09:[
+["Which tissue layer in the human trachea contains goblet cells and cilia?", "Ciliated pseudostratified epithelium", "Smooth muscle layer", "Hyaline cartilage ring", "Elastic connective tissue", "Goblet cells secrete mucus to trap pathogens; cilia sweep the mucus upward away from lungs."]],
+b10:[
+["Which cell type secretes specific monoclonal antibodies during a primary immune response?", "Plasma cells", "Cytotoxic T lymphocytes", "Helper T cells", "Macrophage antigen-presenting cells", "B-lymphocytes differentiate into plasma cells which secrete specific antibody proteins."]],
+b11:[
+["Where in the chloroplast do the light-independent reactions (Calvin cycle) occur?", "Stroma", "Thylakoid membrane", "Intermembrane space", "Outer envelope membrane", "The stroma contains Rubisco and enzymes necessary for carbon fixation."],
+["What is the final electron acceptor in the mitochondrial electron transport chain during aerobic respiration?", "Oxygen", "NAD⁺", "Pyruvate", "Water", "Oxygen accepts electrons and H⁺ ions to form water at complex IV."]],
+b12:[
+["How does ADH (antidiuretic hormone) increase water reabsorption in the kidney nephron?", "Causes aquaporins to be inserted into the luminal membranes of collecting duct cells", "Actively pumps Na⁺ ions out of the Loop of Henle", "Decreases the hydrostatic pressure in the glomerulus", "Inhibits urea transporters in the distal convoluted tubule", "ADH binds V2 receptors, triggering cAMP cascade to move aquaporin-filled vesicles to the membrane."]],
+b13:[
+["What phenotypic ratio is expected from a dihybrid cross involving two heterozygous individuals (AaBb × AaBb) with unlinked genes?", "9 : 3 : 3 : 1", "3 : 1", "1 : 1 : 1 : 1", "9 : 7", "Independent assortment of two unlinked heterozygous genes yields a classic 9:3:3:1 ratio."]],
+b14:[
+["How is Simpson's Index of Diversity (D) interpreted?", "Higher values (closer to 1.0) represent greater species diversity and ecosystem stability", "High values indicate severe environmental pollution", "Values over 1.0 mean dominant invasive species are present", "It measures total biomass per square meter", "Simpson's D ranges from 0 to 1; higher figures reflect greater species richness and evenness."]],
+b15:[
+["What is the role of Taq polymerase in the Polymerase Chain Reaction (PCR)?", "To synthesise new DNA strands at high temperatures without denaturing", "To cut double-stranded DNA at specific palindromic recognition sequences", "To join Okazaki fragments together on lagging strands", "To insert recombinant plasmids into bacterial cells", "Taq polymerase is heat-stable and withstands the 95°C denaturation step."]]
+};
+
+/* ---------------------------------------------------------------------
+   3. MIND MAP DATA (Cambridge AS/A2 Organic Chemistry Reactions)
+   --------------------------------------------------------------------- */
+const MN = {
+  ALK:['Propene','CH₃CH=CH₂'], ALA:['Propane','CH₃CH₂CH₃'], CL:['1-chloropropane','CH₃CH₂CH₂Cl'],
+  DCP:['1,2-dichloropropane','CH₃CHClCH₂Cl'], DIOL:['Propane-1,2-diol','CH₃CH(OH)CH₂OH'], ETHA:['Ethanoic acid + CO₂','CH₃COOH + CO₂'],
+  OL:['Propan-1-ol','CH₃CH₂CH₂OH'], CARB:['Propanal','CH₃CH₂CHO'],
+  ACID:['Propanoic acid','CH₃CH₂COOH'], ACYL:['Propanoyl chloride','CH₃CH₂COCl'], AMIDE:['Propanamide','CH₃CH₂CONH₂'],
+  NAMIDE:['N-propylpropanamide','CH₃CH₂CONHCH₂CH₂CH₃'], SECAM:['Dipropylamine','(CH₃CH₂CH₂)₂NH'],
+  ESTER:['Propyl propanoate','CH₃CH₂COOCH₂CH₂CH₃'], SALT:['Sodium propanoate','CH₃CH₂COO⁻ Na⁺'], ALKOX:['Sodium propoxide','CH₃CH₂CH₂O⁻ Na⁺'],
+  NIT:['Butanenitrile','CH₃CH₂CH₂CN'], BAM:['Butylamine','CH₃CH₂CH₂CH₂NH₂'], BACID:['Butanoic acid','CH₃CH₂CH₂COOH'],
+  AMINE:['Propylamine','CH₃CH₂CH₂NH₂'], AMMON:['Propylammonium chloride','CH₃CH₂CH₂NH₃⁺ Cl⁻'], DIAZO:['Propyldiazonium chloride','CH₃CH₂CH₂N₂⁺ Cl⁻'],
+  GRIG:['Propylmagnesium bromide','CH₃CH₂CH₂MgBr'], HNIT:['2-hydroxybutanenitrile','CH₃CH₂CH(OH)CN'], HACID:['2-hydroxybutanoic acid','CH₃CH₂CH(OH)COOH'],
+  HAMINE:['2-hydroxybutylamine','CH₃CH₂CH(OH)CH₂NH₂'], DNPH:['2,4-DNPH derivative','Orange Precipitate'], AG:['Propanoate ion + Ag','CH₃CH₂COO⁻ + Ag'],
+  CU:['Propanoate ion + Cu₂O','CH₃CH₂COO⁻ + Cu₂O'], IODO:['Tri-iodomethane','CHI₃ (Yellow ppt)'],
+  ALKE2:['2-methylpent-2-ene','CH₃CH=C(CH₃)₂'], G1:['Primary alcohol','CH₃CH₂CH₂CH₂OH'], G2:['Secondary alcohol','CH₃CH₂CH₂CH(R)OH'], G3:['Tertiary alcohol','CH₃CH₂CH₂C(R′)(R″)OH']
+};
+const LIAH = '1. LiAlH₄ in dry ether  2. H₃O⁺';
+const ME = {
+  e1:['ALK','ALA','H₂ / Ni catalyst, heat'], e2:['ALK','DCP','Cl₂ in CCl₄'], e3:['ALK','DIOL','Cold, dilute acidified KMnO₄'], e4:['ALK','ETHA','Hot, concentrated acidified KMnO₄'],
+  e5:['ALK','CL','HCl(g) at room temperature'], e6:['CL','ALK','Ethanolic NaOH, heat under reflux'], e7:['ALA','CL','Cl₂, UV light'], e8:['ALK','OL','H₂O(g) / H₃PO₄ catalyst, 300°C, 60 atm'],
+  e9:['OL','ALK','Concentrated H₂SO₄, 170°C'], e10:['CL','OL','NaOH(aq), heat under reflux'], e11:['OL','CL','SOCl₂ at room temp'], e12:['OL','CARB','Acidified K₂Cr₂O₇, distil immediately'],
+  e13:['CARB','OL',LIAH], e14:['CARB','ACID','Acidified K₂Cr₂O₇, heat under reflux'], e15:['CARB','AG',"Tollens' reagent, warm"], e16:['CARB','CU',"Fehling's solution, warm"],
+  e17:['CARB','IODO','I₂ in aqueous NaOH, warm'], e18:['CARB','DNPH','2,4-dinitrophenylhydrazine reagent'], e19:['CARB','HNIT','HCN with NaCN catalyst'],
+  e20:['ALKE2','CARB','Hot concentrated acidified KMnO₄'], e21:['HNIT','HACID','Dilute HCl, heat under reflux'], e22:['HNIT','HAMINE',LIAH],
+  e23:['ACID','OL',LIAH], e24:['ACID','SALT','NaOH(aq)'], e25:['SALT','ACID','Dilute HCl'], e26:['ACID','ACYL','PCl₅ or SOCl₂'],
+  e27:['ACYL','ACID','H₂O at room temperature'], e28:['ACYL','AMIDE','Concentrated NH₃(aq)'], e29:['ACID','AMIDE','Heat with (NH₄)₂CO₃'], e30:['ACYL','NAMIDE','Propylamine, CH₃CH₂CH₂NH₂'],
+  e31:['AMIDE','AMINE',LIAH], e32:['ACID','ESTER','Propan-1-ol, conc. H₂SO₄, heat'], e33:['ESTER','ACID','Dilute H₂SO₄, heat under reflux'], e34:['ESTER','OL',LIAH],
+  e35:['OL','ALKOX','Na metal'], e36:['ALKOX','OL','H₂O'], e37:['CL','NIT','Ethanolic KCN, heat under reflux'], e38:['NIT','BAM',LIAH], e39:['NIT','BACID','Dilute HCl, heat under reflux'],
+  e40:['CL','AMINE','Excess ethanolic NH₃, heat in sealed tube'], e41:['AMINE','AMMON','Dilute HCl(aq)'], e42:['AMINE','DIAZO','HNO₂ (NaNO₂ + HCl) < 5°C'], e43:['DIAZO','OL','Warm with H₂O'],
+  e44:['CL','GRIG','Mg in dry ether'], e45:['GRIG','BACID','1. CO₂ in dry ether  2. Dilute H₂SO₄'], e46:['GRIG','G1','1. Methanal, HCHO  2. H₃O⁺'],
+  e47:['GRIG','G2','1. Aldehyde, RCHO  2. H₃O⁺'], e48:['GRIG','G3','1. Ketone, RCOR′  2. H₃O⁺'], e49:['NAMIDE','SECAM',LIAH]
+};
+const MM_LEVELS = [
+  {id:'mm1', title:'Alkene pathway hub',        icon:'🧪', center:'ALK',   edges:['e1','e2','e3','e4','e5','e6','e8','e9']},
+  {id:'mm2', title:'Halogenoalkane hub',        icon:'🧫', center:'CL',    edges:['e5','e7','e11','e6','e10','e37','e40','e44']},
+  {id:'mm3', title:'Alcohol synthesis hub',     icon:'🍷', center:'OL',    edges:['e8','e10','e13','e23','e36','e9','e11','e12','e35']},
+  {id:'mm4', title:'Carbonyl reactions hub',    icon:'🔥', center:'CARB',  edges:['e12','e20','e13','e14','e15','e16','e18','e19']},
+  {id:'mm5', title:'Carboxylic acid hub',       icon:'🍋', center:'ACID',  edges:['e25','e27','e33','e23','e24','e26','e29','e32']},
+  {id:'mm6', title:'Acyl chlorides & amides',   icon:'⚗️', center:'ACYL', edges:['e26','e27','e28','e30','e29','e31','e49']},
+  {id:'mm7', title:'Nitriles & Nitrogen compounds', icon:'💧', center:'CL',    edges:['e37','e38','e39','e40','e41','e42','e43']},
+  {id:'mm8', title:'Grignard & Cyanohydrin synthesis', icon:'🧲', center:'GRIG', edges:['e44','e45','e46','e47','e48','e19','e21','e22']},
+  {id:'mm9', title:'Full Organic Synthesis Boss Round', icon:'👑', center:null, boss:true}
+];
+
+const LESSONS = {};
+for (const sk of ['chem','bio']) CUR[sk].sems.forEach((s, si) => s.units.forEach(([id, title, icon]) => { LESSONS[id] = { id, subject: sk, sem: si, title, icon, kind: 'mcq', group: s.title }; }));
+MM_LEVELS.forEach(l => { LESSONS[l.id] = { id: l.id, subject: 'chem', sem: 1, title: l.title, icon: l.icon, kind: 'mm', group: 'Organic Synthesis Mind Map' }; });
+
+/* ---------------------------------------------------------------------
+   4. STATE AND SCORING
+   --------------------------------------------------------------------- */
+const TIME_LIMIT_Q = 20, TIME_LIMIT_MM = 25;
+function calcPoints(t, limit, streak, correct, answered) {
+  const speed = Math.max(1, Math.round(10 * (1 - t / limit)));
+  const acc = answered ? correct / answered : 0;
+  return { speed, streak, acc, pts: Math.max(1, Math.round(speed * streak * acc)) };
+}
+
+const S = { ready:false, screen:'login', login:{ step:'email', email:'', name:'' }, user:null, subject:'chem', sem:{chem:0,bio:0}, tab:'learn', sheet:null,
+  board:[], boardFilter:'total', community:[], bankTab:'add', bankUnit:'c01', browseUnit:'all', bulk:null, result:null };
+let G = null;
+
+function totals() {
+  let chem = 0, bio = 0;
+  for (const [id, p] of Object.entries(S.user.progress || {})) { const m = LESSONS[id]; if (!m) continue; if (m.subject === 'chem') chem += p.best || 0; else bio += p.best || 0; }
+  return { chem, bio, total: chem + bio };
+}
+async function saveUser() { const ok = await DB.set('user:' + S.user.id, S.user, false); if (!ok) toast('Could not save your progress.', 'bad'); return ok; }
+async function pushScore() { const t = totals(); await DB.set('lb:' + S.user.pid, { pid: S.user.pid, name: S.user.name, ...t, av: S.user.thumb || '', ts: Date.now() }, true); }
+async function loadBoard() {
+  try {
+    const rows = await DB.listValues('lb:', true, { limit: 200, order: 'value->total.desc' });
+    S.board = rows.filter(r => r && r.pid && typeof r.total === 'number');
+  } catch (e) {}
+  if (S.user && !S.board.some(r => r.pid === S.user.pid)) S.board.push({ pid: S.user.pid, name: S.user.name, ...totals(), av: S.user.thumb || '', ts: Date.now() });
+}
+async function loadCommunity() {
+  try {
+    const recs = await DB.listValues('cq:', true, { limit: 400, order: 'updated_at.asc' });
+    S.community = recs.filter(r => r && LESSONS[r.unit] && LESSONS[r.unit].kind === 'mcq' && Array.isArray(r.opts) && r.opts.length === 4 && Number.isInteger(r.c) && r.c >= 0 && r.c < 4 && typeof r.q === 'string').sort((a, b) => (a.ts || 0) - (b.ts || 0));
+  } catch (e) {}
+}
+async function loadExternalQuestions() {
+  if (!/^https?:$/.test(location.protocol)) return;
+  try {
+    const r = await fetch('questions.json', { cache: 'no-cache' }); if (!r.ok) return;
+    const d = await r.json();
+    for (const [unit, list] of Object.entries(d)) {
+      if (!LESSONS[unit] || LESSONS[unit].kind !== 'mcq' || !Array.isArray(list)) continue;
+      const out = [];
+      for (const q of list) {
+        if (Array.isArray(q) && q.length >= 5 && q.slice(0, 5).every(x => typeof x === 'string' && x.trim())) out.push([q[0], q[1], q[2], q[3], q[4], q[5] || '', q[6] || '', q[7] || '']);
+        else if (q && typeof q === 'object' && q.question) {
+          const o = ['a', 'b', 'c', 'd'].map(k => q['option_' + k]), ci = 'ABCD'.indexOf(String(q.answer).trim().toUpperCase());
+          if (o.every(x => typeof x === 'string' && x.trim()) && ci >= 0) out.push([q.question, o[ci], ...o.filter((_, i) => i !== ci), q.explanation || '', typeof q.image === 'string' ? q.image : '', q.alt || '']);
+        }
+      }
+      if (out.length) QUESTIONS[unit] = out;
+    }
+  } catch (e) {}
+}
+function rankOf(filter) {
+  const me = S.board.find(r => r.pid === S.user.pid); if (!me || !(me[filter] > 0)) return null;
+  return S.board.filter(r => (r[filter] || 0) > me[filter]).length + 1;
+}
+
+function sections(sk, si) {
+  const s = CUR[sk].sems[si];
+  const out = [{ ids: s.units.map(u => u[0]) }];
+  if (sk === 'chem' && si === 1) out.push({ mm: true, ids: MM_LEVELS.map(l => l.id) });
+  return out;
+}
+const unlocked = (sec, i) => i === 0 || !!(S.user.progress[sec.ids[i - 1]] || {}).done;
+const OFFS = [0, 46, 72, 46, 0, -46, -72, -46];
+
+/* ---------------------------------------------------------------------
+   5. SCREENS
+   --------------------------------------------------------------------- */
+function render() {
+  document.body.className = S.subject === 'bio' ? 'bio' : '';
+  const app = $('#app');
+  if (!S.ready) { app.innerHTML = '<div class="loading">Loading Bondly A-Level…</div>'; return; }
+  if (S.screen === 'login') app.innerHTML = loginHTML();
+  else if (S.screen === 'main') app.innerHTML = mainHTML();
+  else if (S.screen === 'play') renderPlay();
+  else if (S.screen === 'mm') renderMM();
+  else if (S.screen === 'result') app.innerHTML = resultHTML();
+  window.scrollTo(0, 0);
+}
+function toast(msg, kind) { const d = document.createElement('div'); d.className = 'toast ' + (kind || ''); d.textContent = msg; $('#toasts').appendChild(d); setTimeout(() => d.remove(), 2800); }
+
+const RING = `<svg class="ring" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28" fill="none" stroke="var(--accent)" stroke-width="7" stroke-linejoin="round"/><path d="M50 22 L74 36 M74 64 L50 78 M26 64 L26 36" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/></svg>`;
+
+function loginHTML() {
+  const L = S.login, head = `<div class="login">${RING}<h1>Bondly A-Level</h1><p class="tag">Cambridge International 9700 & 9701 prep platform.</p>`;
+  if (ONLINE && L.step === 'code') return head + `<p class="sub" style="margin:0 0 6px">We emailed a verification code to <b>${esc(L.email)}</b>.</p>
+    <label class="f" for="code">Code</label><input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="123456">
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" id="loginBtn" data-act="login">Verify and sign in</button>
+    <div class="row" style="margin-top:12px"><button class="btn ghost" data-act="resend">Resend code</button><button class="btn ghost" data-act="changeEmail">Change email</button></div></div>`;
+  if (ONLINE && L.step === 'name') return head + `<p class="sub" style="margin:0 0 6px">Choose a display name for the leaderboard.</p>
+    <label class="f" for="name">Display name</label><input id="name" type="text" maxlength="20" autocomplete="nickname" placeholder="e.g. ChemPro9701" value="${esc(L.name)}">
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" id="loginBtn" data-act="login">Start revision</button></div>`;
+  return head + `<label class="f" for="email">Email</label>
+    <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="student@school.com" value="${esc(L.email)}">
+    <label class="f" for="name">Display name <small>(shown on global leaderboard)</small></label>
+    <input id="name" type="text" maxlength="20" autocomplete="nickname" placeholder="e.g. BioMaster9700" value="${esc(L.name)}">
+    <div class="err" id="loginErr" role="alert"></div>
+    <button class="btn" id="loginBtn" data-act="login">${ONLINE ? 'Send me a sign-in code' : 'Save my progress'}</button>
+    <p class="fine">Track your streak, complete organic mind maps, and practice exam questions.</p>
+  </div>`;
+}
+
+function tabsHTML() {
+  const t = [['learn','📚','Learn'],['board','🏆','Leaderboard'],['bank','🗂️','Questions'],['me','👤','Profile']];
+  return `<nav class="tabs"><div class="in">${t.map(x => `<button class="${S.tab === x[0] ? 'on' : ''}" data-act="tab" data-tab="${x[0]}"><span>${x[1]}</span>${x[2]}</button>`).join('')}</div></nav>`;
+}
+function mainHTML() {
+  const body = S.tab === 'learn' ? learnHTML() : S.tab === 'board' ? boardHTML() : S.tab === 'bank' ? bankHTML() : meHTML();
+  return `<div class="main">${body}</div>${tabsHTML()}${S.sheet ? sheetHTML() : ''}`;
+}
+
+function learnHTML() {
+  const sk = S.subject, si = S.sem[sk], sem = CUR[sk].sems[si], T = totals();
+  const path = sections(sk, si).map(sec => {
+    const head = sec.mm ? `<div class="mmhead"><h3>A-Level Organic Mind Map</h3><p>Reconstruct synthesis pathways for Cambridge 9701 Organic Chemistry. Drag and fill reagents and functional groups.</p></div>` : '';
+    const steps = sec.ids.map((id, i) => {
+      const L = LESSONS[id], p = S.user.progress[id], open = unlocked(sec, i), done = p && p.done;
+      const state = !open ? 'locked' : done ? 'done' : 'current';
+      const st = done ? '★'.repeat(p.stars || 1) + '☆'.repeat(3 - (p.stars || 1)) : '';
+      return `<div class="step" style="--dx:${OFFS[i % OFFS.length]}px"><button class="hex ${state}" data-act="open" data-id="${id}" aria-label="${esc(L.title)}${open ? '' : ' (locked)'}"><span class="hb"></span><span class="hf">${open ? L.icon : '🔒'}</span></button><div class="sl">${esc(L.title)}</div>${st ? `<div class="stars">${st}</div>` : ''}</div>`;
+    }).join('');
+    return head + `<div class="path">${steps}</div>`;
+  }).join('');
+  return `<div class="top">
+      <div class="seg" role="tablist"><button class="${sk === 'chem' ? 'on' : ''}" data-act="subject" data-s="chem">⚗️ Chemistry (9701)</button><button class="${sk === 'bio' ? 'on' : ''}" data-act="subject" data-s="bio">🌿 Biology (9700)</button></div>
+      <div class="chip total" title="Score">⭐ ${T.total}</div></div>
+    <div class="semtabs">${[0,1,2].map(i => `<button class="${si === i ? 'on' : ''}" data-act="sem" data-i="${i}">${i < 2 ? 'AS' : 'A2'} - Part ${i === 0 ? 1 : i === 1 ? 2 : 3}</button>`).join('')}</div>
+    <section class="sembanner"><div class="n">${si < 2 ? 'AS Level' : 'A2 Level'} Syllabus Content</div><h2>${esc(sem.title)}</h2><p class="b">${esc(sem.blurb)}</p></section>
+    ${path}`;
+}
+
+function sheetHTML() {
+  const L = LESSONS[S.sheet], p = S.user.progress[S.sheet] || {};
+  let info;
+  if (L.kind === 'mcq') {
+    const core = (QUESTIONS[L.id] || []).length, com = S.community.filter(c => c.unit === L.id).length;
+    info = `10 exam-style multiple-choice questions per run. Fast correct streaks score maximum points.`;
+  } else info = L.id === 'mm9' ? 'Random reactions across the entire Cambridge A-Level Organic syllabus.' : 'Reconstruct synthesis steps. Tap ? to select slot and match correct reagent or compound.';
+  return `<div class="overlay" data-act="overlay"><div class="sheet" role="dialog" aria-label="${esc(L.title)}">
+    <div class="ic">${L.icon}</div><h3>${esc(L.title)}</h3><div class="sub">${esc(L.group)}</div>
+    <p class="sub" style="margin-bottom:0">${esc(info)}</p>
+    <div class="stats"><div class="stat"><b>${p.best || 0}</b><span>Best score</span></div><div class="stat"><b>${p.plays || 0}</b><span>Times played</span></div><div class="stat"><b>${p.bestStreak || 0}</b><span>Best streak</span></div></div>
+    <div class="row"><button class="btn ghost" data-act="closeSheet">Cancel</button><button class="btn" data-act="start" data-id="${L.id}">${p.done ? 'Replay' : 'Start'}</button></div></div></div>`;
+}
+
+function boardHTML() {
+  const f = S.boardFilter, me = S.user.pid;
+  const all = S.board.filter(r => (r[f] || 0) > 0).sort((a, b) => (b[f] || 0) - (a[f] || 0) || (a.ts || 0) - (b.ts || 0));
+  const top = all.slice(0, 50);
+  const medal = i => i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1;
+  const myRank = rankOf(f), outside = myRank && myRank > 50;
+  const items = top.map((r, i) => `<li class="${r.pid === me ? 'me' : ''}"><span class="rk">${medal(i)}</span>${avHTML(r.pid === me ? (S.user.avatar || S.user.thumb) : r.av, r.name, 'sm')}<span class="nm">${esc(String(r.name || 'Student').slice(0, 20))}${r.pid === me ? ' (you)' : ''}</span><span class="sc">${r[f]}</span></li>`).join('');
+  return `<h2 class="pg">Global Leaderboard</h2><p class="sub">A-Level students scored by accuracy, speed, and streak performance.</p>
+    <div class="pills">${[['total','Overall'],['chem','Chemistry 9701'],['bio','Biology 9700']].map(x => `<button class="${f === x[0] ? 'on' : ''}" data-act="boardFilter" data-f="${x[0]}">${x[1]}</button>`).join('')}<button data-act="refreshBoard" style="margin-left:auto">Refresh</button></div>
+    ${items ? `<ul class="lb">${items}</ul>` : `<div class="empty">No entries yet. Complete a topic to log your score!</div>`}
+    ${outside ? `<ul class="lb" style="margin-top:8px"><li class="me"><span class="rk">${myRank}</span>${avHTML(S.user.avatar || S.user.thumb, S.user.name, 'sm')}<span class="nm">${esc(S.user.name)} (you)</span><span class="sc">${totals()[f]}</span></li></ul>` : ''}`;
+}
+
+function meHTML() {
+  const T = totals(), P = Object.values(S.user.progress || {});
+  const done = P.filter(p => p.done).length, bs = Math.max(0, ...P.map(p => p.bestStreak || 0));
+  const r = rankOf('total');
+  return `<div class="who"><button class="avbtn" data-act="pickAvatar" aria-label="Change photo">${avHTML(S.user.avatar, S.user.name)}<span class="cam" aria-hidden="true">📷</span></button><div><h2 class="pg" style="margin:0">${esc(S.user.name)}</h2><div class="sub">${esc(S.user.email)}</div></div></div>
+    <input type="file" id="avfile" accept="image/*" hidden>
+    <div class="avrow"><button class="btn ghost" data-act="pickAvatar">${S.user.avatar ? 'Change photo' : 'Add photo'}</button>${S.user.avatar ? '<button class="btn ghost" data-act="removeAvatar">Remove</button>' : ''}</div>
+    <div class="grid2"><div class="stat"><b>${T.total}</b><span>Total score</span></div><div class="stat"><b>${r ? '#' + r : '–'}</b><span>Global rank</span></div>
+      <div class="stat"><b>${T.chem}</b><span>9701 Chemistry</span></div><div class="stat"><b>${T.bio}</b><span>9700 Biology</span></div>
+      <div class="stat"><b>${done}</b><span>Topics completed</span></div><div class="stat"><b>${bs}</b><span>Best streak</span></div></div>
+    <button class="btn ghost" data-act="signout">Sign out</button>`;
+}
+
+/* ---- lesson (multiple choice) ---- */
+function startMCQ(id) {
+  const core = (QUESTIONS[id] || []).map(q => ({ q: q[0], a: q[1], opts: [q[1], q[2], q[3], q[4]], exp: q[5], by: '', img: q[6] || '', alt: q[7] || '' }));
+  const com = S.community.filter(c => c.unit === id).map(c => ({ q: c.q, a: c.opts[c.c], opts: c.opts, exp: c.exp || '', by: c.by || 'a student', img: c.img || '', alt: c.alt || '' }));
+  const qs = shuffle([...core, ...com]).slice(0, 10).map(x => ({ ...x, opts: shuffle(x.opts) }));
+  G = { kind: 'mcq', id, qs, i: 0, correct: 0, answered: 0, streak: 0, bestStreak: 0, score: 0, t0: 0, locked: false, started: Date.now() };
+  S.sheet = null; S.screen = 'play'; render();
+}
+function liveHTML() { return `<div class="live"><span id="lstreak">🔥 ${G.streak}</span><span id="lscore">⭐ ${G.score}</span></div>`; }
+function renderPlay() {
+  const q = G.qs[G.i], pct = Math.round(G.answered / G.qs.length * 100);
+  $('#app').innerHTML = `<div class="play">
+    <div class="ptop"><button class="x" data-act="quit" aria-label="Leave lesson">✕</button><div class="spectrum" role="progressbar" aria-valuenow="${pct}"><div class="cover" id="cover" style="width:${100 - pct}%"></div></div>${liveHTML()}</div>
+    <div class="tbar" aria-hidden="true"><i style="animation-duration:${TIME_LIMIT_Q}s"></i></div>
+    <div class="qtag">Question ${G.i + 1} of ${G.qs.length}${q.by ? ` · from ${esc(q.by)}` : ''}</div>
+    <div class="qtext">${esc(q.q)}</div>
+    ${figSrc(q.img) ? `<img class="q-figure" src="${figSrc(q.img)}" alt="${esc(q.alt)}">` : ''}
+    <div class="opts">${q.opts.map((o, i) => `<button class="opt" data-act="pick" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+    <div class="fb" id="fb" hidden></div></div>`;
+  G.t0 = performance.now(); G.locked = false;
+}
+function pick(idx) {
+  if (!G || G.kind !== 'mcq' || G.locked) return;
+  G.locked = true;
+  const q = G.qs[G.i], t = (performance.now() - G.t0) / 1000, ok = q.opts[idx] === q.a;
+  G.answered++;
+  const bar = document.querySelector('.tbar i'); if (bar) bar.style.animationPlayState = 'paused';
+  document.querySelectorAll('.opt').forEach((b, i) => { b.disabled = true; if (q.opts[i] === q.a) b.classList.add('ok'); else if (i === idx) b.classList.add('bad'); else b.classList.add('dim'); });
+  let head, calc = '';
+  if (ok) {
+    G.correct++; G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const sc = calcPoints(t, TIME_LIMIT_Q, G.streak, G.correct, G.answered); G.score += sc.pts;
+    head = `Correct, +${sc.pts}`; calc = `⚡ speed ${sc.speed} × 🔥 streak ${sc.streak} × 🎯 accuracy ${sc.acc.toFixed(2)}`;
+  } else { G.streak = 0; head = 'Incorrect'; calc = 'Streak reset.'; }
+  const last = G.i === G.qs.length - 1;
+  const fb = $('#fb'); fb.hidden = false; fb.className = 'fb ' + (ok ? 'ok' : 'bad');
+  fb.innerHTML = `<h3>${head}</h3><div class="calc">${calc}</div><div class="exp">${ok ? '' : `Correct Answer: <b>${esc(q.a)}</b>.<br>`}${esc(q.exp)}</div><button class="btn ${ok ? 'ok' : 'bad'}" data-act="next" id="nextBtn">${last ? 'Complete Topic' : 'Next Question'}</button>`;
+  $('#lstreak').textContent = '🔥 ' + G.streak; $('#lscore').textContent = '⭐ ' + G.score;
+  $('#cover').style.width = (100 - Math.round(G.answered / G.qs.length * 100)) + '%';
+  $('#nextBtn').focus({ preventScroll: true });
+}
+function nextQ() { if (!G || !G.locked) return; G.i++; if (G.i >= G.qs.length) finishRun(); else renderPlay(); }
+
+/* ---- mind map challenge ---- */
+function buildMM(id) {
+  const L = MM_LEVELS.find(l => l.id === id);
+  const eids = L.boss ? shuffle(Object.keys(ME)).slice(0, 10) : L.edges;
+  const rows = eids.map(eid => {
+    const [A, B, R] = ME[eid];
+    const anchor = (L.center && B === L.center && A !== L.center) ? 'B' : 'A';
+    return { eid, A, B, R, anchor, nodeKey: anchor === 'A' ? B : A, blank: Math.random() < 0.5 ? 'reagent' : 'node', done: false };
+  });
+  if (rows.every(r => r.blank === rows[0].blank)) rows[0].blank = rows[0].blank === 'node' ? 'reagent' : 'node';
+  const ans = r => r.blank === 'reagent' ? r.R : MN[r.nodeKey][0];
+  const chips = rows.map((r, i) => ({ id: 'c' + i, type: r.blank, text: ans(r), used: false }));
+  const usedR = new Set(rows.map(r => r.R)), usedN = new Set(rows.flatMap(r => [r.A, r.B]));
+  const rPool = shuffle([...new Set(Object.values(ME).map(e => e[2]))].filter(t => !usedR.has(t)));
+  const nPool = shuffle(Object.keys(MN).filter(k => !usedN.has(k))).map(k => MN[k][0]);
+  if (rows.some(r => r.blank === 'reagent')) rPool.slice(0, 2).forEach((t, i) => chips.push({ id: 'dr' + i, type: 'reagent', text: t, used: false }));
+  if (rows.some(r => r.blank === 'node')) nPool.slice(0, 2).forEach((t, i) => chips.push({ id: 'dn' + i, type: 'node', text: t, used: false }));
+  return { kind: 'mm', id, center: L.center, rows, chips: shuffle(chips), sel: 0, correct: 0, answered: 0, streak: 0, bestStreak: 0, score: 0, t0: performance.now(), started: Date.now(), msg: null, shake: null, flash: null, ans };
+}
+function startMM(id) { G = buildMM(id); S.sheet = null; S.screen = 'mm'; render(); }
+function mmNode(key, o) {
+  const [name, f] = MN[key];
+  if (o.blank && !o.done) return `<button class="mn blank ${o.sel ? 'sel' : ''}" data-act="mmsel" data-row="${o.idx}" aria-label="Missing species">?<small>product</small></button>`;
+  return `<div class="mn ${o.done ? 'filled' : ''} ${key === G.center ? 'hub' : ''}"><b>${key === G.center ? '★ ' : ''}${esc(name)}</b><code>${esc(f)}</code></div>`;
+}
+function mmRow(r, i) {
+  const sel = G.sel === i && !r.done;
+  const a = (r.blank === 'node' && r.anchor === 'B') ? mmNode(r.A, { blank: true, sel, done: r.done, idx: i }) : mmNode(r.A, {});
+  const b = (r.blank === 'node' && r.anchor === 'A') ? mmNode(r.B, { blank: true, sel, done: r.done, idx: i }) : mmNode(r.B, {});
+  const re = r.blank === 'reagent'
+    ? (r.done ? `<span class="pill filled">${esc(r.R)}</span>` : `<button class="pill blank ${sel ? 'sel' : ''}" data-act="mmsel" data-row="${i}" aria-label="Missing reagent">reagents & conditions ?</button>`)
+    : `<span class="pill">${esc(r.R)}</span>`;
+  return `<div class="mmrow ${r.done ? 'ok' : ''} ${G.flash === i ? 'flash' : ''}">${a}<span class="arr" aria-hidden="true">▶</span>${b}<div class="mr">${re}</div></div>`;
+}
+function renderMM() {
+  const L = LESSONS[G.id], done = G.rows.filter(r => r.done).length, pct = Math.round(done / G.rows.length * 100);
+  const strip = G.msg ? `<div class="mmstrip ${G.msg.ok === true ? 'ok' : G.msg.ok === false ? 'bad' : ''}">${G.msg.html}</div>` : '<div class="mmstrip"></div>';
+  const chips = G.chips.filter(c => !c.used).map(c => `<button class="chip ${c.type} ${G.shake === c.id ? 'shake' : ''}" data-act="mmchip" data-chip="${c.id}">${esc(c.text)}</button>`).join('');
+  const html = `<div class="mm"><div class="mmtop">
+      <div class="ptop"><button class="x" data-act="quit" aria-label="Leave challenge">✕</button><div class="spectrum" role="progressbar" aria-valuenow="${pct}"><div class="cover" style="width:${100 - pct}%"></div></div>${liveHTML()}</div>
+      <h2 class="mmtitle disp">${L.icon} ${esc(L.title)}</h2>
+      <div class="mmhelp">Reconstruct organic steps. Tap a ? slot, then choose the correct option below.</div>${strip}</div>
+    <div class="mmrows">${G.rows.map(mmRow).join('')}</div>
+    <div class="chipbar"><div class="t">Reagent & Compound Bank (${G.chips.filter(c => !c.used && !c.id.startsWith('d')).length} required)</div><div class="chips">${chips}</div></div></div>`;
+  G.shake = null; G.flash = null;
+  $('#app').innerHTML = html;
+}
+function mmPlace(chipId) {
+  const ch = G.chips.find(c => c.id === chipId); if (!ch || ch.used) return;
+  let r = G.rows[G.sel]; if (!r || r.done) { G.sel = G.rows.findIndex(x => !x.done); r = G.rows[G.sel]; }
+  if (ch.type !== r.blank) { G.msg = { ok: null, html: r.blank === 'reagent' ? 'Selected slot requires a reagent/condition.' : 'Selected slot requires an organic product.' }; G.shake = ch.id; return renderMM(); }
+  const t = (performance.now() - G.t0) / 1000; G.t0 = performance.now(); G.answered++;
+  if (ch.text === G.ans(r)) {
+    G.correct++; G.streak++; G.bestStreak = Math.max(G.bestStreak, G.streak);
+    const sc = calcPoints(t, TIME_LIMIT_MM, G.streak, G.correct, G.answered); G.score += sc.pts;
+    r.done = true; ch.used = true;
+    G.msg = { ok: true, html: `+${sc.pts} &nbsp; ⚡${sc.speed} × 🔥${sc.streak} × 🎯${sc.acc.toFixed(2)}` };
+    G.sel = G.rows.findIndex(x => !x.done);
+    if (G.sel === -1) { G.sel = 0; renderMM(); return setTimeout(finishRun, 700); }
+  } else {
+    G.streak = 0; G.shake = ch.id; G.flash = G.sel; G.msg = { ok: false, html: 'Incorrect step! Streak reset.' };
+  }
+  renderMM();
+}
+
+/* ---- finish and results ---- */
+async function finishRun() {
+  const acc = G.answered ? G.correct / G.answered : 0, stars = acc >= .9 ? 3 : acc >= .7 ? 2 : 1;
+  const prev = S.user.progress[G.id] || { best: 0, plays: 0 };
+  const isBest = G.score > (prev.best || 0);
+  S.user.progress[G.id] = { best: Math.max(prev.best || 0, G.score), stars: Math.max(prev.stars || 0, stars), bestStreak: Math.max(prev.bestStreak || 0, G.bestStreak), done: true, plays: (prev.plays || 0) + 1 };
+  const L = LESSONS[G.id]; S.subject = L.subject; S.sem[L.subject] = L.sem; S.tab = 'learn';
+  S.result = { id: G.id, score: G.score, acc, streak: G.bestStreak, time: Math.round((Date.now() - G.started) / 1000), stars, isBest, first: !prev.plays, rank: null };
+  G = null; S.screen = 'result'; render();
+  await saveUser(); await pushScore(); await loadBoard();
+  if (S.screen === 'result' && S.result) { S.result.rank = rankOf('total'); render(); }
+}
+function resultHTML() {
+  const R = S.result, L = LESSONS[R.id];
+  const head = R.stars === 3 ? 'A* Performance!' : R.stars === 2 ? 'Great Revision!' : 'Topic Completed';
+  return `<div class="result"><div class="st" aria-label="${R.stars} of 3 stars">${'★'.repeat(R.stars)}${'☆'.repeat(3 - R.stars)}</div>
+    <h2>${head}</h2><div class="lab">${esc(L.title)}</div>
+    <div class="big">${R.score}</div><div class="lab">points earned</div>
+    ${R.isBest && !R.first ? '<span class="badge">New Personal Best</span>' : ''}
+    <div class="stats"><div class="stat"><b>${Math.round(R.acc * 100)}%</b><span>Accuracy</span></div><div class="stat"><b>${R.streak}</b><span>Best streak</span></div><div class="stat"><b>${R.time}s</b><span>Time</span></div></div>
+    ${R.rank ? `<p class="sub" style="margin-bottom:16px">Rank #${R.rank} on the global leaderboard!</p>` : ''}
+    <div class="row"><button class="btn ghost" data-act="again" data-id="${R.id}">Replay</button><button class="btn" data-act="home">Continue</button></div></div>`;
+}
+function confirmQuit() {
+  const d = document.createElement('div'); d.className = 'confirm'; d.id = 'confirm';
+  d.innerHTML = `<div class="box"><h3>Leave session?</h3><p>Your current score won't be saved.</p><div class="row"><button class="btn ghost" data-act="stay">Keep going</button><button class="btn bad" data-act="leave">Quit</button></div></div>`;
+  document.body.appendChild(d);
+}
+
+/* ---------------------------------------------------------------------
+   6. QUESTION BANK
+   --------------------------------------------------------------------- */
+function unitOptions(sel) {
+  return ['chem', 'bio'].map(sk => CUR[sk].sems.map((s, si) => `<optgroup label="${CUR[sk].name} - ${s.title}">${s.units.map(u => `<option value="${u[0]}" ${sel === u[0] ? 'selected' : ''}>${esc(u[1])}</option>`).join('')}</optgroup>`).join('')).join('');
+}
+function bankHTML() {
+  const tabs = [['add', 'Add Question'], ['bulk', 'CSV Upload'], ['browse', 'Browse All']];
+  const t = S.bankTab;
+  let body = '';
+  if (t === 'add') body = `<div class="card"><label class="f" for="f-unit" style="margin-top:0">Cambridge Topic Unit</label><select id="f-unit">${unitOptions(S.bankUnit)}</select>
+      <label class="f" for="f-q">Exam Question</label><textarea id="f-q" maxlength="300" placeholder="Type an A-Level style question stem..."></textarea>
+      <label class="f" for="f-fig">Diagram/Figure <small>(optional, max 1MB)</small></label><input id="f-fig" type="file" accept="image/png,image/jpeg,image/webp" style="width:100%">
+      <label class="f" for="f-alt">Figure Description</label><input id="f-alt" type="text" maxlength="200" placeholder="e.g. Mass spectrum of compound X showing peak at m/z 58">
+      <label class="f">Option Choices <small>(Mark correct answer)</small></label>
+      ${[0, 1, 2, 3].map(i => `<div class="optrow"><input type="radio" name="correct" value="${i}" ${i === 0 ? 'checked' : ''}><input type="text" id="f-o${i}" maxlength="120" placeholder="Option ${'ABCD'[i]}"></div>`).join('')}
+      <label class="f" for="f-exp">Mark Scheme Explanation</label><textarea id="f-exp" maxlength="300" style="min-height:64px" placeholder="Explain the key chemistry/biology principle..."></textarea>
+      <div style="margin-top:14px"><button class="btn" data-act="submitQ">Submit to Question Bank</button></div></div>`;
+  else if (t === 'bulk') {
+    const b = S.bulk;
+    body = `<div class="card"><label class="f" for="b-unit" style="margin-top:0">Target Syllabus Unit</label><select id="b-unit">${unitOptions(S.bankUnit)}</select>
+      <label class="f" for="bulkfile">Upload CSV or JSON file</label><input id="bulkfile" type="file" accept=".csv,.json,text/csv,application/json" style="width:100%">
+      ${b ? `<div style="margin-top:12px"><b>${esc(b.name)}</b>: ${b.valid.length} valid questions ready.</div>${b.valid.length ? `<div style="margin-top:10px"><button class="btn" data-act="uploadBulk">Import ${b.valid.length} questions</button></div>` : ''}` : ''}</div>
+      <div class="card"><h3>CSV Layout</h3><p class="sub">Header: question, A, B, C, D, answer, explanation</p>
+      <div style="margin:10px 0"><button class="btn small ghost" data-act="template">Download Template CSV</button></div></div>`;
+  } else {
+    const list = S.community.filter(c => S.browseUnit === 'all' || c.unit === S.browseUnit).slice().reverse().slice(0, 100);
+    body = `<label class="f" for="br-unit" style="margin-top:0">Filter by Topic Unit</label><select id="br-unit"><option value="all">All Syllabus Topics (${S.community.length})</option>${unitOptions(S.browseUnit)}</select><div style="height:12px"></div>
+      ${list.length ? list.map(c => `<div class="card q-item"><div class="meta">${esc(LESSONS[c.unit].title)} · by ${esc(String(c.by || 'a student').slice(0, 20))}</div><div class="qq">${esc(String(c.q).slice(0, 300))}</div><ul>${c.opts.map((o, i) => `<li class="${i === c.c ? 'c' : ''}">${esc(String(o).slice(0, 120))}</li>`).join('')}</ul>${c.pid === S.user.pid ? `<div style="margin-top:10px"><button class="btn small ghost" data-act="delq" data-id="${esc(c.id)}">Delete</button></div>` : ''}</div>`).join('') : '<div class="empty">No community questions submitted yet for this topic.</div>'}`;
+  }
+  return `<h2 class="pg">Question Bank</h2><p class="sub">Custom Cambridge 9700/9701 practice questions.</p>
+    <div class="pills">${tabs.map(x => `<button class="${t === x[0] ? 'on' : ''}" data-act="bankTab" data-t="${x[0]}">${x[1]}</button>`).join('')}</div>${body}`;
+}
+function validateQ({ q, opts, exp }) {
+  if (q.length < 10) return 'Question stem must be at least 10 characters.';
+  if (!Array.isArray(opts) || opts.length !== 4) return 'Exactly 4 options required.';
+  if (opts.some(o => !o)) return 'Complete all 4 options.';
+  return '';
+}
+const norm = s => String(s).toLowerCase().replace(/\s+/g, ' ').trim();
+function makeRec(unit, q, opts, c, exp, img, alt) {
+  const r = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), unit, q, opts, c, exp: exp || '', by: S.user.name, pid: S.user.pid, ts: Date.now() };
+  if (img) { r.img = img; r.alt = alt; }
+  return r;
+}
+const isDupe = (unit, q) => S.community.some(c => c.unit === unit && norm(c.q) === norm(q)) || (QUESTIONS[unit] || []).some(x => norm(x[0]) === norm(q));
+async function saveRecs(recs) {
+  let ok = 0;
+  for (let i = 0; i < recs.length; i += 10) {
+    const res = await Promise.all(recs.slice(i, i + 10).map(r => DB.set('cq:' + r.id, r, true)));
+    res.forEach((v, j) => { if (v) { S.community.push(recs[i + j]); ok++; } });
+  }
+  return ok;
+}
+async function submitQ() {
+  const unit = $('#f-unit').value, q = $('#f-q').value.trim(), opts = [0, 1, 2, 3].map(i => $('#f-o' + i).value.trim());
+  const c = +((document.querySelector('input[name=correct]:checked') || { value: 0 }).value), exp = $('#f-exp').value.trim();
+  const err = validateQ({ q, opts, exp }); if (err) return toast(err, 'bad');
+  if (isDupe(unit, q)) return toast('Question already exists.', 'bad');
+  S.bankUnit = unit;
+  const file = $('#f-fig').files[0], alt = $('#f-alt').value.trim().slice(0, 200);
+  let img = '';
+  if (file) { try { img = await uploadFigure(file); } catch (e) { return toast(e.message, 'bad'); } }
+  const n = await saveRecs([makeRec(unit, q, opts, c, exp, img, alt)]);
+  if (n) { toast('Question added to bank!', 'ok'); render(); } else toast('Error saving question.', 'bad');
+}
+function parseCSV(text) {
+  const rows = []; let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else quoted = false; } else cell += c; }
+    else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); cell = ''; if (row.some(x => x.trim() !== '')) rows.push(row); row = []; }
+    else cell += c;
+  }
+  row.push(cell); if (row.some(x => x.trim() !== '')) rows.push(row);
+  return rows;
+}
+function toIndex(a, opts) {
+  const s = String(a ?? '').trim();
+  if (/^[A-D]$/i.test(s)) return s.toUpperCase().charCodeAt(0) - 65;
+  return opts.findIndex(o => o.toLowerCase() === s.toLowerCase());
+}
+async function handleFile(file) {
+  if (!file) return;
+  const text = (await file.text()).replace(/^\uFEFF/, ''); let rows = [];
+  try {
+    const t = parseCSV(text); if (t.length && /question/i.test(t[0][0])) t.shift();
+    rows = t.map(r => ({ q: r[0], opts: [r[1], r[2], r[3], r[4]], ans: r[5], exp: r[6] || '' }));
+  } catch (e) { return toast('File format error.', 'bad'); }
+  const valid = [];
+  rows.slice(0, 100).forEach((r, i) => {
+    const q = String(r.q ?? '').trim(), exp = String(r.exp ?? '').trim(), opts = (Array.isArray(r.opts) ? r.opts : []).map(x => String(x ?? '').trim());
+    const err = validateQ({ q, opts, exp }), c = err ? -1 : toIndex(r.ans, opts);
+    if (!err && c >= 0) valid.push({ q, opts, c, exp });
+  });
+  S.bulk = { name: file.name, valid }; render();
+}
+async function uploadBulk() {
+  if (!S.bulk) return;
+  const unit = S.bankUnit, recs = [];
+  for (const v of S.bulk.valid) { if (!isDupe(unit, v.q)) recs.push(makeRec(unit, v.q, v.opts, v.c, v.exp)); }
+  const n = await saveRecs(recs); S.bulk = null;
+  toast(`${n} questions imported!`, 'ok'); render();
+}
+function downloadTemplate() {
+  const csv = 'question,A,B,C,D,answer,explanation\n"Which organelle synthesises ATP?","Mitochondrion","Ribosome","Golgi body","Nucleus","A","Mitochondria carry out oxidative phosphorylation."\n';
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'bondly-alevel-template.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ---------------------------------------------------------------------
+   7. EVENTS AND INIT
+   --------------------------------------------------------------------- */
+async function enterApp(name) {
+  const uid = Auth.s.user.id, email = Auth.s.user.email;
+  let u = await DB.get('user:' + uid, false);
+  if (!u) {
+    if (!name || name.length < 2) { S.login.step = 'name'; render(); return; }
+    u = { id: uid, email, name, pid: uid, progress: {}, created: Date.now() };
+  } else { if (name && name.length >= 2) u.name = name; u.pid = uid; u.email = email; }
+  S.user = u; await saveUser();
+  await Promise.all([loadBoard(), loadCommunity()]); await pushScore();
+  S.screen = 'main'; S.tab = 'learn'; render();
+}
+async function onlineLogin() {
+  const L = S.login, err = m => { const e = $('#loginErr'); if (e) e.textContent = m; }, btn = $('#loginBtn');
+  try {
+    err('');
+    if (L.step === 'email') {
+      const email = $('#email').value.trim().toLowerCase(), name = $('#name').value.trim().slice(0, 20);
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return err('Valid email required.');
+      await Auth.sendCode(email); L.email = email; L.name = name; L.step = 'code'; render();
+    } else if (L.step === 'code') {
+      const code = $('#code').value.replace(/\s/g, '');
+      await Auth.verify(L.email, code); await enterApp(L.name);
+    } else {
+      const name = $('#name').value.trim().slice(0, 20);
+      await enterApp(name);
+    }
+  } catch (e) { err(friendly(e)); }
+}
+async function doLogin() {
+  if (ONLINE) return onlineLogin();
+  const email = $('#email').value.trim().toLowerCase(), name = $('#name').value.trim().slice(0, 20);
+  const id = idOf(email); let u = await DB.get('user:' + id, false);
+  if (!u) u = { id, email, name: name || 'A-Level Student', pid: await hashId(email), progress: {}, created: Date.now() };
+  S.user = u; await saveUser(); await DB.set('session', { id }, false);
+  await Promise.all([loadBoard(), loadCommunity()]); await pushScore();
+  S.screen = 'main'; S.tab = 'learn'; render();
+}
+
+const ACT = {
+  login: doLogin,
+  tab: el => { S.tab = el.dataset.tab; S.sheet = null; render(); if (S.tab === 'board') refreshBoard(); },
+  subject: el => { S.subject = el.dataset.s; render(); },
+  sem: el => { S.sem[S.subject] = +el.dataset.i; render(); },
+  open: el => {
+    const id = el.dataset.id, L = LESSONS[id], sec = sections(L.subject, L.sem).find(s => s.ids.includes(id)), i = sec.ids.indexOf(id);
+    if (!unlocked(sec, i)) return toast('Complete the preceding topic first!', 'bad');
+    S.sheet = id; render();
+  },
+  overlay: (el, e) => { if (e.target === el) { S.sheet = null; render(); } },
+  closeSheet: () => { S.sheet = null; render(); },
+  start: el => { const id = el.dataset.id; LESSONS[id].kind === 'mm' ? startMM(id) : startMCQ(id); },
+  again: el => { const id = el.dataset.id; S.result = null; LESSONS[id].kind === 'mm' ? startMM(id) : startMCQ(id); },
+  home: () => { S.result = null; S.screen = 'main'; S.tab = 'learn'; render(); },
+  pick: el => pick(+el.dataset.i),
+  next: nextQ,
+  quit: confirmQuit,
+  stay: () => { const c = $('#confirm'); if (c) c.remove(); },
+  leave: () => { const c = $('#confirm'); if (c) c.remove(); G = null; S.screen = 'main'; render(); },
+  mmsel: el => { const i = +el.dataset.row; if (G && G.rows[i] && !G.rows[i].done) { G.sel = i; G.msg = null; renderMM(); } },
+  mmchip: el => mmPlace(el.dataset.chip),
+  boardFilter: el => { S.boardFilter = el.dataset.f; render(); },
+  refreshBoard: () => refreshBoard(true),
+  bankTab: el => { S.bankTab = el.dataset.t; S.bulk = null; render(); },
+  submitQ, uploadBulk, template: downloadTemplate,
+  delq: async el => {
+    const id = el.dataset.id;
+    await DB.del('cq:' + id, true); S.community = S.community.filter(c => c.id !== id); toast('Question deleted.', 'ok'); render();
+  },
+  resend: async () => { try { await Auth.sendCode(S.login.email); toast('Code sent!', 'ok'); } catch (e) { toast(friendly(e), 'bad'); } },
+  changeEmail: () => { S.login.step = 'email'; render(); },
+  pickAvatar: () => { const f = $('#avfile'); if (f) f.click(); },
+  removeAvatar: clearAvatar,
+  signout: async () => {
+    if (DB.mode === 'online') await Auth.signOut(); else await DB.del('session', false);
+    S.user = null; S.screen = 'login'; S.sheet = null; render();
+  }
+};
+async function refreshBoard(show) {
+  await loadBoard();
+  if (S.screen === 'main' && S.tab === 'board') { render(); if (show) toast('Leaderboard updated.', 'ok'); }
+}
+
+document.addEventListener('click', e => { const el = e.target.closest('[data-act]'); if (el && ACT[el.dataset.act]) ACT[el.dataset.act](el, e); });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'bulkfile') handleFile(t.files[0]);
+  else if (t.id === 'avfile') { setAvatar(t.files[0]); t.value = ''; }
+  else if (t.id === 'f-unit' || t.id === 'b-unit') S.bankUnit = t.value;
+  else if (t.id === 'br-unit') { S.browseUnit = t.value; render(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.target.matches('input,textarea,select')) { if (e.key === 'Enter' && S.screen === 'login' && e.target.matches('input')) doLogin(); return; }
+  if (S.screen !== 'play' || !G) return;
+  const k = e.key.toLowerCase();
+  if (!G.locked) { const i = '1234'.indexOf(k) >= 0 ? '1234'.indexOf(k) : 'abcd'.indexOf(k); if (k.length === 1 && i >= 0) pick(i); }
+  else if (e.key === 'Enter') { e.preventDefault(); nextQ(); }
+});
+
+(async function init() {
+  render();
+  DB.init();
+  await loadExternalQuestions();
+  try {
+    if (DB.mode === 'online') {
+      if (Auth.s && await Auth.fresh()) {
+        const u = await DB.get('user:' + Auth.s.user.id, false);
+        if (u) { u.pid = Auth.s.user.id; S.user = u; await Promise.all([loadBoard(), loadCommunity()]); S.screen = 'main'; }
+      }
+    } else {
+      const sess = await DB.get('session', false);
+      if (sess && sess.id) {
+        const u = await DB.get('user:' + sess.id, false);
+        if (u) { if (!u.pid) u.pid = await hashId(u.email); S.user = u; await Promise.all([loadBoard(), loadCommunity()]); S.screen = 'main'; }
+      }
+    }
+  } catch (e) { S.screen = 'login'; S.user = null; }
+  S.ready = true; render();
+})();
+</script>
+</body>
+</html>
